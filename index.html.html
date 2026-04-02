@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STILLMIND — UX Design Document</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F5F0E8;
+    --warm-white: #FAF8F4;
+    --sage: #8BA888;
+    --sage-light: #B5C9B2;
+    --sage-pale: #DCE8DA;
+    --blush: #E8C4B0;
+    --blush-pale: #F2DDD2;
+    --lavender: #C4B8D4;
+    --lavender-pale: #E8E2F0;
+    --terracotta: #C4775A;
+    --ink: #2C2820;
+    --ink-soft: #4A4540;
+    --ink-muted: #7A746E;
+    --border: rgba(44,40,32,0.1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* GRAIN OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  /* COVER */
+  .cover {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 40px;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+  }
+
+  .cover-bg {
+    position: absolute;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 70% 60% at 20% 80%, rgba(181,201,178,0.35) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 50% at 80% 20%, rgba(196,184,212,0.3) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 60% 70%, rgba(232,196,176,0.2) 0%, transparent 60%);
+  }
+
+  .cover-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    animation: drift 8s ease-in-out infinite;
+  }
+  .orb1 { width: 300px; height: 300px; background: rgba(181,201,178,0.3); top: -50px; left: -80px; animation-delay: 0s; }
+  .orb2 { width: 250px; height: 250px; background: rgba(196,184,212,0.25); bottom: 0; right: -60px; animation-delay: -3s; }
+  .orb3 { width: 200px; height: 200px; background: rgba(232,196,176,0.2); top: 40%; left: 60%; animation-delay: -5s; }
+
+  @keyframes drift {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(20px, -15px) scale(1.05); }
+    66% { transform: translate(-10px, 10px) scale(0.97); }
+  }
+
+  .cover-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--ink-muted);
+    margin-bottom: 40px;
+    position: relative;
+  }
+
+  .app-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(64px, 12vw, 110px);
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    line-height: 0.9;
+    color: var(--ink);
+    position: relative;
+    margin-bottom: 8px;
+  }
+
+  .app-name em {
+    font-style: italic;
+    color: var(--sage);
+  }
+
+  .tagline {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 20px;
+    color: var(--ink-muted);
+    margin-bottom: 48px;
+    position: relative;
+  }
+
+  .cover-meta {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    flex-wrap: wrap;
+    position: relative;
+  }
+
+  .meta-pill {
+    background: rgba(255,255,255,0.6);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 8px 20px;
+    font-size: 12px;
+    color: var(--ink-soft);
+    backdrop-filter: blur(10px);
+  }
+
+  /* NAV */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(245,240,232,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+  }
+
+  .nav-item {
+    padding: 16px 20px;
+    font-size: 11px;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.1em;
+    color: var(--ink-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.3s;
+    text-decoration: none;
+  }
+
+  .nav-item:hover, .nav-item.active {
+    color: var(--ink);
+    border-bottom-color: var(--sage);
+  }
+
+  /* SECTIONS */
+  .section {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 80px 40px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section:last-child { border-bottom: none; }
+
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: var(--sage);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--sage-pale);
+    max-width: 60px;
+  }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(36px, 6vw, 56px);
+    font-weight: 300;
+    line-height: 1.1;
+    margin-bottom: 40px;
+    color: var(--ink);
+  }
+
+  .section-title em {
+    font-style: italic;
+    color: var(--sage);
+  }
+
+  /* CARDS */
+  .card-grid { display: grid; gap: 20px; }
+  .card-grid-2 { grid-template-columns: 1fr 1fr; }
+  .card-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  @media (max-width: 700px) {
+    .card-grid-2, .card-grid-3 { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: var(--warm-white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(44,40,32,0.08);
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+
+  .card.sage::before { background: linear-gradient(90deg, var(--sage), var(--sage-light)); }
+  .card.blush::before { background: linear-gradient(90deg, var(--blush), var(--blush-pale)); }
+  .card.lavender::before { background: linear-gradient(90deg, var(--lavender), var(--lavender-pale)); }
+  .card.terracotta::before { background: linear-gradient(90deg, var(--terracotta), var(--blush)); }
+
+  .card-icon {
+    font-size: 28px;
+    margin-bottom: 16px;
+  }
+
+  .card-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .card-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 400;
+    margin-bottom: 12px;
+  }
+
+  .card-body {
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    line-height: 1.7;
+  }
+
+  /* PERSONA */
+  .persona-card {
+    background: var(--warm-white);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  .persona-header {
+    background: linear-gradient(135deg, var(--sage-pale), var(--lavender-pale));
+    padding: 32px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 24px;
+    align-items: center;
+  }
+
+  .persona-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--sage-light), var(--lavender));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    border: 3px solid rgba(255,255,255,0.6);
+  }
+
+  .persona-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 30px;
+    font-weight: 400;
+    margin-bottom: 4px;
+  }
+
+  .persona-bio {
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+
+  .persona-body {
+    padding: 32px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  @media (max-width: 600px) {
+    .persona-body { grid-template-columns: 1fr; }
+    .persona-header { grid-template-columns: 1fr; text-align: center; }
+  }
+
+  .persona-section-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--sage);
+    margin-bottom: 12px;
+  }
+
+  .persona-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .persona-list li {
+    font-size: 13px;
+    color: var(--ink-soft);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .persona-list li::before {
+    content: '·';
+    color: var(--sage);
+    font-size: 20px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .quote-block {
+    background: linear-gradient(135deg, var(--blush-pale), var(--lavender-pale));
+    border-radius: 12px;
+    padding: 20px 24px;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--ink-soft);
+    position: relative;
+    grid-column: 1 / -1;
+  }
+
+  .quote-block::before {
+    content: '"';
+    font-size: 60px;
+    color: var(--sage-light);
+    position: absolute;
+    top: -10px; left: 16px;
+    font-family: 'Cormorant Garamond', serif;
+    line-height: 1;
+  }
+
+  /* INSIGHT PILLS */
+  .insight-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 8px;
+  }
+
+  .insight-pill {
+    background: var(--warm-white);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 8px 18px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .insight-pill .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* VALUE PROP */
+  .value-block {
+    background: linear-gradient(135deg, var(--sage-pale) 0%, var(--lavender-pale) 50%, var(--blush-pale) 100%);
+    border-radius: 20px;
+    padding: 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .value-block::before {
+    content: 'STILLMIND';
+    position: absolute;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 120px;
+    font-weight: 600;
+    color: rgba(139,168,136,0.08);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .value-headline {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(28px, 5vw, 44px);
+    font-weight: 300;
+    line-height: 1.2;
+    margin-bottom: 20px;
+    position: relative;
+  }
+
+  .value-headline em { font-style: italic; color: var(--sage); }
+
+  .value-desc {
+    font-size: 15px;
+    color: var(--ink-soft);
+    max-width: 500px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  /* USER FLOW */
+  .flow-diagram {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .flow-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+
+  .flow-node {
+    background: var(--warm-white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 20px;
+    font-size: 13px;
+    color: var(--ink);
+    text-align: center;
+    min-width: 140px;
+    flex-shrink: 0;
+    position: relative;
+    transition: all 0.3s;
+  }
+
+  .flow-node:hover {
+    background: var(--sage-pale);
+    border-color: var(--sage-light);
+  }
+
+  .flow-node.start {
+    background: var(--sage);
+    color: white;
+    border-color: var(--sage);
+    font-weight: 500;
+  }
+
+  .flow-node.end {
+    background: var(--lavender);
+    color: var(--ink);
+    border-color: var(--lavender);
+  }
+
+  .flow-node .node-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.15em;
+    opacity: 0.6;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .flow-arrow {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    min-width: 30px;
+  }
+
+  .flow-arrow::after {
+    content: '';
+    flex: 1;
+    height: 1.5px;
+    background: var(--sage-light);
+    position: relative;
+  }
+
+  .flow-arrow.down {
+    flex-direction: column;
+    padding: 8px 0;
+    align-items: flex-start;
+    margin-left: 70px;
+  }
+
+  .flow-arrow.down::after {
+    width: 1.5px;
+    height: 30px;
+    flex: none;
+  }
+
+  /* IA TREE */
+  .ia-container {
+    overflow-x: auto;
+    padding: 20px 0;
+  }
+
+  .ia-tree {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    min-width: 700px;
+  }
+
+  .ia-root {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 0;
+  }
+
+  .ia-node {
+    background: var(--sage);
+    color: white;
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+  }
+
+  .ia-level1 {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding-top: 0;
+    position: relative;
+  }
+
+  .ia-branch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    flex: 1;
+  }
+
+  .ia-connector-v {
+    width: 1.5px;
+    height: 30px;
+    background: var(--sage-light);
+    margin: 0 auto;
+  }
+
+  .ia-connector-h {
+    height: 1.5px;
+    background: var(--sage-light);
+    width: 100%;
+    margin-bottom: 0;
+  }
+
+  .ia-section-node {
+    background: var(--warm-white);
+    border: 1.5px solid var(--sage-light);
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 13px;
+    text-align: center;
+    width: 100%;
+  }
+
+  .ia-children {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    width: 100%;
+  }
+
+  .ia-child-node {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-size: 12px;
+    color: var(--ink-soft);
+    text-align: center;
+    width: calc(100% - 20px);
+    margin: 0 10px;
+  }
+
+  .ia-child-connector {
+    width: 1.5px;
+    height: 14px;
+    background: var(--border);
+    margin: 0 auto;
+  }
+
+  /* WIREFRAMES */
+  .wireframe-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+    align-items: start;
+  }
+
+  .phone-frame {
+    background: var(--warm-white);
+    border: 1px solid var(--border);
+    border-radius: 40px;
+    padding: 12px;
+    box-shadow: 0 20px 60px rgba(44,40,32,0.1), 0 4px 16px rgba(44,40,32,0.06);
+    position: relative;
+    transition: transform 0.3s;
+  }
+
+  .phone-frame:hover {
+    transform: translateY(-4px);
+  }
+
+  .phone-screen {
+    background: var(--cream);
+    border-radius: 30px;
+    overflow: hidden;
+    min-height: 380px;
+    position: relative;
+  }
+
+  .phone-notch {
+    width: 80px;
+    height: 22px;
+    background: var(--warm-white);
+    border-radius: 0 0 16px 16px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+  }
+
+  .screen-content {
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: 100%;
+  }
+
+  /* Wireframe elements */
+  .wf-bar { height: 8px; border-radius: 100px; background: rgba(44,40,32,0.1); }
+  .wf-bar.short { width: 40%; }
+  .wf-bar.medium { width: 65%; }
+  .wf-bar.full { width: 100%; }
+  .wf-bar.sage { background: rgba(139,168,136,0.4); }
+  .wf-bar.bold { background: rgba(44,40,32,0.25); height: 12px; }
+
+  .wf-circle { border-radius: 50%; background: rgba(44,40,32,0.08); flex-shrink: 0; }
+  .wf-rect { background: rgba(44,40,32,0.07); border-radius: 8px; }
+  .wf-rect.sage { background: rgba(139,168,136,0.25); }
+  .wf-rect.blush { background: rgba(232,196,176,0.35); }
+  .wf-rect.lavender { background: rgba(196,184,212,0.35); }
+  .wf-rect.feature { border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+
+  .wf-row { display: flex; gap: 8px; align-items: center; }
+  .wf-tag { background: rgba(139,168,136,0.2); border-radius: 100px; height: 20px; width: 60px; }
+
+  .screen-label {
+    text-align: center;
+    margin-top: 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--ink-muted);
+  }
+
+  .screen-desc {
+    text-align: center;
+    font-size: 12px;
+    color: var(--ink-muted);
+    margin-top: 4px;
+  }
+
+  /* STATS / RESEARCH */
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .stat-box {
+    background: var(--warm-white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 20px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 48px;
+    font-weight: 300;
+    color: var(--sage);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--ink-muted);
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.1em;
+  }
+
+  /* PAIN POINTS */
+  .pain-card {
+    background: var(--warm-white);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 24px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .pain-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 300;
+    color: var(--sage-light);
+    line-height: 1;
+    flex-shrink: 0;
+    width: 40px;
+  }
+
+  .pain-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    margin-bottom: 6px;
+  }
+
+  .pain-body {
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+
+  /* FOOTER */
+  .footer {
+    padding: 60px 40px;
+    text-align: center;
+    background: var(--ink);
+    color: rgba(245,240,232,0.5);
+  }
+
+  .footer-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 300;
+    color: var(--cream);
+    margin-bottom: 8px;
+  }
+
+  .footer-sub {
+    font-size: 12px;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.15em;
+  }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 32px 0;
+  }
+
+  /* ANIMATE IN */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .section { animation: fadeUp 0.6s ease both; }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<section class="cover">
+  <div class="cover-bg"></div>
+  <div class="cover-orb orb1"></div>
+  <div class="cover-orb orb2"></div>
+  <div class="cover-orb orb3"></div>
+
+  <div class="cover-tag">PROJECT 2 — DESIGNING FOR MENTAL WELLNESS</div>
+  <div class="app-name">STILL<em>MIND</em></div>
+  <div class="tagline">quiet the loop. find your ground.</div>
+
+  <div class="cover-meta">
+    <div class="meta-pill">🧠 Problem: Overthinking</div>
+    <div class="meta-pill">📱 Mobile Application</div>
+    <div class="meta-pill">🌿 Mental Wellness</div>
+    <div class="meta-pill">CMD332 — Experimental Graphic Design</div>
+  </div>
+</section>
+
+<!-- NAV -->
+<nav class="nav">
+  <a class="nav-item" href="#research">01 RESEARCH</a>
+  <a class="nav-item" href="#persona">02 PERSONA</a>
+  <a class="nav-item" href="#painpoints">03 PAIN POINTS</a>
+  <a class="nav-item" href="#insights">04 INSIGHTS</a>
+  <a class="nav-item" href="#concept">05 CONCEPT</a>
+  <a class="nav-item" href="#value">06 VALUE PROP</a>
+  <a class="nav-item" href="#flow">07 USER FLOW</a>
+  <a class="nav-item" href="#ia">08 IA</a>
+  <a class="nav-item" href="#wireframes">09 WIREFRAMES</a>
+</nav>
+
+<!-- 01 RESEARCH -->
+<section class="section" id="research">
+  <div class="section-label">01 — USER RESEARCH</div>
+  <h2 class="section-title">Who's <em>stuck in their head?</em></h2>
+
+  <div class="stat-row">
+    <div class="stat-box">
+      <div class="stat-num">5</div>
+      <div class="stat-label">PARTICIPANTS</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num">18–27</div>
+      <div class="stat-label">AGE RANGE</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num">3</div>
+      <div class="stat-label">METHODS USED</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num">80%</div>
+      <div class="stat-label">OVERTHINK DAILY</div>
+    </div>
+  </div>
+
+  <div class="card-grid card-grid-3">
+    <div class="card sage">
+      <div class="card-icon">🗣️</div>
+      <div class="card-label">Method 01</div>
+      <div class="card-title">In-Depth Interview</div>
+      <div class="card-body">พูดคุยเชิงลึกกับ 5 คน อายุ 18–27 ปี เกี่ยวกับพฤติกรรม overthinking และผลกระทบในชีวิตประจำวัน ทั้งด้านการนอน การทำงาน และความสัมพันธ์</div>
+    </div>
+    <div class="card blush">
+      <div class="card-icon">📋</div>
+      <div class="card-label">Method 02</div>
+      <div class="card-title">Online Survey</div>
+      <div class="card-body">แบบสอบถามออนไลน์ วัดความถี่และ trigger ของ overthinking รวมถึง coping mechanism ที่ใช้อยู่ในปัจจุบัน (นอนไม่หลับ, scroll โทรศัพท์, ฟังเพลง ฯลฯ)</div>
+    </div>
+    <div class="card lavender">
+      <div class="card-icon">📱</div>
+      <div class="card-label">Method 03</div>
+      <div class="card-title">App Audit</div>
+      <div class="card-body">วิเคราะห์แอปที่มีอยู่ในตลาด เช่น Headspace, Calm, Finch — ดูว่า missing จาก user experience อะไร และ pain point ที่ยังแก้ไม่ได้</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="card-grid card-grid-2">
+    <div class="card sage">
+      <div class="card-label">Key Finding 01</div>
+      <div class="card-title">ทุกคน overthink ก่อนนอน</div>
+      <div class="card-body">5/5 คนบอกว่า overthinking รุนแรงที่สุดช่วง 22:00–02:00 — ตอนที่ไม่มี distraction และความคิดวิ่งอิสระ</div>
+    </div>
+    <div class="card blush">
+      <div class="card-label">Key Finding 02</div>
+      <div class="card-title">Journaling ช่วย แต่ขี้เกียจเขียน</div>
+      <div class="card-body">ทุกคนรู้ว่า journaling ดี แต่ "มันรู้สึก heavy เกินไป" — อยากมีอะไรเร็ว เบา และไม่ต้องคิดมากในการเริ่มต้น</div>
+    </div>
+    <div class="card lavender">
+      <div class="card-label">Key Finding 03</div>
+      <div class="card-title">ต้องการ validation ไม่ใช่ solution</div>
+      <div class="card-body">"ฉันแค่อยากรู้ว่า feeling แบบนี้มันโอเค" — ผู้ใช้ต้องการ emotional acknowledgment ก่อนที่จะพร้อมรับ advice</div>
+    </div>
+    <div class="card terracotta">
+      <div class="card-label">Key Finding 04</div>
+      <div class="card-title">แอป meditation ดูน่ากลัว</div>
+      <div class="card-body">ผู้ใช้รู้สึกว่า Calm/Headspace ทำให้รู้สึกว่า "ฉันต้องป่วย" ถึงใช้ — อยากได้ experience ที่ normalise และ playful กว่านี้</div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 PERSONA -->
+<section class="section" id="persona">
+  <div class="section-label">02 — USER PERSONA</div>
+  <h2 class="section-title">Meet <em>Ploy</em></h2>
+
+  <div class="persona-card">
+    <div class="persona-header">
+      <div class="persona-avatar">🧕</div>
+      <div>
+        <div class="persona-name">Ploy Kanjana, 22</div>
+        <div class="persona-bio">นักศึกษาปี 4 คณะนิเทศศาสตร์ · BKK · Part-time freelance designer<br>
+        <em style="color: var(--sage); font-style: italic; font-size: 13px;">"ฉันคิดเยอะมาก แต่ไม่รู้จะ stop ยังไง"</em></div>
+      </div>
+    </div>
+    <div class="persona-body">
+      <div>
+        <div class="persona-section-title">Goals</div>
+        <ul class="persona-list">
+          <li>อยากหลับได้ง่ายขึ้นโดยไม่มีความคิดวนในหัว</li>
+          <li>ต้องการ vent ได้โดยไม่กังวลว่าจะ burden คนอื่น</li>
+          <li>อยากรู้จักตัวเองผ่าน pattern ที่คิดซ้ำๆ</li>
+          <li>รู้สึก in control ของความคิดมากขึ้น</li>
+        </ul>
+      </div>
+      <div>
+        <div class="persona-section-title">Frustrations</div>
+        <ul class="persona-list">
+          <li>แอป meditation รู้สึก clinical เกินไป ไม่ใช่ตัวเอง</li>
+          <li>Journaling ใช้เวลานาน และไม่รู้จะเริ่มยังไง</li>
+          <li>เพื่อนก็ overthink เหมือนกัน เลยไม่อยากไปรบกวน</li>
+          <li>ทำ breathing exercise แล้ว "รู้สึกโง่"</li>
+        </ul>
+      </div>
+      <div>
+        <div class="persona-section-title">Behaviors</div>
+        <ul class="persona-list">
+          <li>Scroll TikTok จนหลับเพื่อ distract ตัวเอง</li>
+          <li>Replay conversations ในหัวซ้ำๆ ก่อนนอน</li>
+          <li>ชอบ aesthetic apps มากกว่า utility apps</li>
+          <li>ใช้ Spotify และ Pinterest เพื่อ regulate mood</li>
+        </ul>
+      </div>
+      <div>
+        <div class="persona-section-title">Tech Comfort</div>
+        <ul class="persona-list">
+          <li>ใช้โทรศัพท์ 6–8 ชั่วโมง/วัน</li>
+          <li>ชอบแอปที่ UI สวย มี personality</li>
+          <li>ไม่ชอบ notification รบกวน</li>
+          <li>พร้อมจ่ายถ้า "รู้สึกว่าคุ้ม"</li>
+        </ul>
+      </div>
+      <div class="quote-block" style="padding-top: 28px;">
+        ฉันไม่ได้ต้องการให้ใครแก้ปัญหาให้ แค่อยากมีที่ที่รู้สึกว่า... โอเคที่จะคิดเยอะ
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top: 24px;">
+    <div class="card-grid card-grid-3">
+      <div class="card sage" style="padding: 20px;">
+        <div class="card-label">Secondary Persona</div>
+        <div class="wf-row" style="margin-bottom: 12px;">
+          <div class="wf-circle" style="width:44px;height:44px;background:rgba(139,168,136,0.3);display:flex;align-items:center;justify-content:center;font-size:22px;">👨‍💻</div>
+          <div><div style="font-family:'Cormorant Garamond',serif;font-size:18px;">Gun, 25</div><div style="font-size:12px;color:var(--ink-muted);">Junior Developer · Burnout-prone</div></div>
+        </div>
+        <div class="card-body">"งานเยอะ + คิดเรื่องงานตลอด แยกไม่ออกระหว่าง worrying กับ planning"</div>
+      </div>
+      <div class="card blush" style="padding: 20px;">
+        <div class="card-label">Secondary Persona</div>
+        <div class="wf-row" style="margin-bottom: 12px;">
+          <div class="wf-circle" style="width:44px;height:44px;background:rgba(232,196,176,0.4);display:flex;align-items:center;justify-content:center;font-size:22px;">👩‍🎨</div>
+          <div><div style="font-family:'Cormorant Garamond',serif;font-size:18px;">Fah, 19</div><div style="font-size:12px;color:var(--ink-muted);">ม.ปลาย · Social anxiety</div></div>
+        </div>
+        <div class="card-body">"คิดก่อนพูดทุกครั้ง กลัวว่าคนจะ judge และ replay บทสนทนาที่ผ่านมานาน"</div>
+      </div>
+      <div class="card lavender" style="padding: 20px;">
+        <div class="card-label">Secondary Persona</div>
+        <div class="wf-row" style="margin-bottom: 12px;">
+          <div class="wf-circle" style="width:44px;height:44px;background:rgba(196,184,212,0.4);display:flex;align-items:center;justify-content:center;font-size:22px;">👩‍⚕️</div>
+          <div><div style="font-family:'Cormorant Garamond',serif;font-size:18px;">Wan, 27</div><div style="font-size:12px;color:var(--ink-muted);">พยาบาล · High-stress</div></div>
+        </div>
+        <div class="card-body">"หลังกะงาน ความคิดยังอยู่ที่ ward — switch off ไม่ได้ กลับบ้านแต่ใจยังอยู่ที่งาน"</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 03 PAIN POINTS -->
+<section class="section" id="painpoints">
+  <div class="section-label">03 — PAIN POINTS & NEEDS</div>
+  <h2 class="section-title">What <em>actually hurts</em></h2>
+
+  <div class="card-grid" style="gap:14px;">
+    <div class="pain-card">
+      <div class="pain-num">01</div>
+      <div>
+        <div class="pain-title">The Loop That Won't Stop</div>
+        <div class="pain-body">ความคิดวนซ้ำโดยไม่มีจุดสิ้นสุด — ผู้ใช้ไม่ได้ต้องการหยุดคิด แต่ต้องการ "ออกจาก loop" และมองเห็นความคิดได้ชัดขึ้น ปัจจุบันไม่มีเครื่องมือที่ช่วย externalise ความคิดได้แบบ low-effort</div>
+      </div>
+    </div>
+    <div class="pain-card">
+      <div class="pain-num">02</div>
+      <div>
+        <div class="pain-title">กลัวว่าตัวเองผิดปกติ</div>
+        <div class="pain-body">แอป mental health ส่วนใหญ่ทำให้รู้สึก "ฉันต้องป่วยถึงจะใช้" — ผู้ใช้ต้องการ normalisation ว่า overthinking เป็น human experience ไม่ใช่ disorder</div>
+      </div>
+    </div>
+    <div class="pain-card">
+      <div class="pain-num">03</div>
+      <div>
+        <div class="pain-title">Coping Mechanism ที่ใช้อยู่ทำให้แย่ลง</div>
+        <div class="pain-body">Scroll โทรศัพท์ก่อนนอน → ยิ่ง stimulated → หลับยากขึ้น ผู้ใช้ต้องการ alternative ที่ equally accessible แต่ช่วย wind down จริงๆ</div>
+      </div>
+    </div>
+    <div class="pain-card">
+      <div class="pain-num">04</div>
+      <div>
+        <div class="pain-title">Journaling มี Barrier สูง</div>
+        <div class="pain-body">"เขียนอะไรดี" และ "ต้องเขียนให้ดีไหม" เป็น two biggest blockers — ผู้ใช้ต้องการ prompt ที่ช่วย start และ low-stakes environment ที่ไม่ judge</div>
+      </div>
+    </div>
+    <div class="pain-card">
+      <div class="pain-num">05</div>
+      <div>
+        <div class="pain-title">ไม่เห็น Progress</div>
+        <div class="pain-body">ผู้ใช้ไม่รู้ว่า "ฉันดีขึ้นไหม" เพราะไม่มี data เกี่ยวกับ thought patterns ของตัวเอง ต้องการ gentle reflection ที่แสดง growth โดยไม่ gamify มากเกินไป</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 04 INSIGHTS -->
+<section class="section" id="insights">
+  <div class="section-label">04 — INSIGHTS</div>
+  <h2 class="section-title">What we <em>discovered</em></h2>
+
+  <div class="card-grid card-grid-2" style="margin-bottom: 32px;">
+    <div class="card sage">
+      <div class="card-label">Insight 01</div>
+      <div class="card-title">Overthinking = Unprocessed Emotion</div>
+      <div class="card-body">ความคิดวนส่วนใหญ่มาจาก emotion ที่ยังไม่ได้ถูก acknowledge — solution ที่ได้ผลจึงต้องเริ่มจาก "รู้สึกอะไร" ก่อน ไม่ใช่ "แก้ยังไง"</div>
+    </div>
+    <div class="card blush">
+      <div class="card-label">Insight 02</div>
+      <div class="card-title">Friction = Abandonment</div>
+      <div class="card-body">ทุก step เพิ่มเติมใน onboarding / daily use = 40% chance ที่ user จะ drop — แอปต้องสามารถเริ่มได้ใน 10 วินาที หรือ zero friction</div>
+    </div>
+    <div class="card lavender">
+      <div class="card-label">Insight 03</div>
+      <div class="card-title">Aesthetic is Trust</div>
+      <div class="card-body">สำหรับ Gen Z, UI ที่สวยและ cohesive = "แอปนี้ take care of me" — visual design ไม่ใช่ surface level แต่เป็นส่วนหนึ่งของ therapeutic value</div>
+    </div>
+    <div class="card terracotta">
+      <div class="card-label">Insight 04</div>
+      <div class="card-title">คืนคือ Golden Hour</div>
+      <div class="card-body">80% ของ overthinking peaks ตอน 22:00–01:00 — core use case ของแอปควร optimize สำหรับ nighttime wind-down ritual</div>
+    </div>
+  </div>
+
+  <div class="card" style="background: var(--sage-pale); border-color: var(--sage-light);">
+    <div class="card-label">Design Opportunity Statement</div>
+    <div style="font-family: 'Cormorant Garamond', serif; font-size: 24px; line-height: 1.4; color: var(--ink);">
+      "How might we create a <em style="font-style:italic;color:var(--sage);">low-friction, aesthetically calming</em> space that helps overthinking Gen Z users <em style="font-style:italic;color:var(--terracotta);">externalise and process their thoughts</em> — especially during nighttime — without feeling clinical or overwhelming?"
+    </div>
+  </div>
+</section>
+
+<!-- 05 CONCEPT -->
+<section class="section" id="concept">
+  <div class="section-label">05 — CONCEPT & STRATEGY</div>
+  <h2 class="section-title">Introducing <em>StillMind</em></h2>
+
+  <div class="card-grid card-grid-2" style="margin-bottom: 32px;">
+    <div>
+      <div class="card" style="margin-bottom: 16px; background: linear-gradient(135deg, var(--sage-pale), var(--warm-white));">
+        <div class="card-label">App Concept</div>
+        <div class="card-title" style="font-size: 28px;">A gentle thinking companion for the night</div>
+        <div class="card-body">StillMind ไม่ใช่แอป meditation และไม่ใช่ therapy — มันคือ "safe container" สำหรับความคิดที่ล้นออกมา ใช้งานได้ในวินาที ไม่ judge และไม่ push solution</div>
+      </div>
+      <div class="card blush">
+        <div class="card-label">Core Philosophy</div>
+        <div class="card-body" style="font-size: 15px; line-height: 1.9;">
+          <strong>Notice, not fix.</strong> ผู้ใช้ไม่ต้องหยุดคิด<br>
+          <strong>Express, not perform.</strong> ไม่มีใครอ่าน<br>
+          <strong>Breathe, not meditate.</strong> เบา ไม่ heavy<br>
+          <strong>Reflect, not analyze.</strong> ดูภาพรวม ไม่ dissect
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="card lavender" style="height: 100%;">
+        <div class="card-label">App Features Overview</div>
+        <div style="display: flex; flex-direction: column; gap: 16px; margin-top: 8px;">
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <div style="font-size:24px;flex-shrink:0;">🌙</div>
+            <div><div style="font-weight:500;margin-bottom:4px;">Night Check-in</div><div class="card-body">Mood wheel + one-tap emotion tag + optional micro-journal prompt (30 วินาที)</div></div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <div style="font-size:24px;flex-shrink:0;">💭</div>
+            <div><div style="font-weight:500;margin-bottom:4px;">Thought Dump</div><div class="card-body">พิมพ์อะไรก็ได้ แล้ว AI จะ "catch" ความคิด เหมือนขวดใส่ความกังวล</div></div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <div style="font-size:24px;flex-shrink:0;">🌬️</div>
+            <div><div style="font-weight:500;margin-bottom:4px;">Breathe Space</div><div class="card-body">Animated breathing guide แบบ organic — ไม่ใช่ timer แต่เป็น visual rhythm</div></div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <div style="font-size:24px;flex-shrink:0;">📊</div>
+            <div><div style="font-weight:500;margin-bottom:4px;">Mind Map</div><div class="card-body">Timeline ของ mood + thought patterns รายสัปดาห์ — gentle, no judgment</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 06 VALUE PROP -->
+<section class="section" id="value">
+  <div class="section-label">06 — VALUE PROPOSITION</div>
+  <h2 class="section-title">Why <em>StillMind?</em></h2>
+
+  <div class="value-block" style="margin-bottom: 32px;">
+    <div class="value-headline">
+      A place where your thoughts<br>can <em>rest without being solved.</em>
+    </div>
+    <div class="value-desc">StillMind ช่วยให้ชีวิตผู้ใช้ดีขึ้นด้วยการสร้าง ritual เล็กๆ ที่ทำให้ความคิดไหลออกมาข้างนอกแทนที่จะวนในหัว — ส่งผลให้หลับง่ายขึ้น ความวิตกกังวลลดลง และเริ่มรู้จักตัวเองมากขึ้นผ่าน pattern ที่เก็บสะสม</div>
+  </div>
+
+  <div class="card-grid card-grid-3">
+    <div class="card sage" style="text-align:center;">
+      <div style="font-size:40px;margin-bottom:12px;">🛏️</div>
+      <div class="card-title">หลับง่ายขึ้น</div>
+      <div class="card-body">Nighttime wind-down ritual ที่ structured ช่วย signal ให้สมองรู้ว่า "วันนี้จบแล้ว" ลด rumination ก่อนนอน</div>
+    </div>
+    <div class="card blush" style="text-align:center;">
+      <div style="font-size:40px;margin-bottom:12px;">🌱</div>
+      <div class="card-title">รู้จักตัวเองมากขึ้น</div>
+      <div class="card-body">Mood + thought tracking ทำให้เห็น pattern ของตัวเอง ว่า overthink เรื่องอะไรมากที่สุด และ trigger คืออะไร</div>
+    </div>
+    <div class="card lavender" style="text-align:center;">
+      <div style="font-size:40px;margin-bottom:12px;">🤝</div>
+      <div class="card-title">ไม่รู้สึกโดดเดี่ยว</div>
+      <div class="card-body">Tone ของแอปที่ warm และ non-judgmental ทำให้รู้สึกว่ามีคนรับฟัง โดยไม่ต้อง burden ใคร</div>
+    </div>
+  </div>
+</section>
+
+<!-- 07 USER FLOW -->
+<section class="section" id="flow">
+  <div class="section-label">07 — USER FLOW</div>
+  <h2 class="section-title">The <em>Journey</em></h2>
+
+  <!-- Main Flow -->
+  <div style="background: var(--warm-white); border: 1px solid var(--border); border-radius: 20px; padding: 36px; overflow-x: auto;">
+    <div style="font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.15em; color: var(--ink-muted); margin-bottom: 24px;">CORE FLOW — NIGHTTIME WIND-DOWN</div>
+
+    <!-- Row 1 -->
+    <div style="display:flex;align-items:center;gap:0;margin-bottom:0;min-width:600px;">
+      <div class="flow-node start" style="text-align:center;">
+        <span class="node-label">START</span>
+        Open App
+      </div>
+      <div class="flow-arrow"></div>
+      <div class="flow-node">
+        <span class="node-label">SCREEN 1</span>
+        Home / Greeting
+      </div>
+      <div class="flow-arrow"></div>
+      <div class="flow-node">
+        <span class="node-label">SCREEN 2</span>
+        Mood Check-in
+      </div>
+      <div class="flow-arrow"></div>
+      <div class="flow-node">
+        <span class="node-label">SCREEN 3</span>
+        Emotion Tag
+      </div>
+    </div>
+
+    <!-- Connector down -->
+    <div style="display:flex;min-width:600px;">
+      <div style="flex:1;"></div>
+      <div style="flex:1;"></div>
+      <div style="flex:1;"></div>
+      <div style="width:140px;flex-shrink:0;display:flex;justify-content:center;">
+        <div style="width:1.5px;height:30px;background:var(--sage-light);margin:0 auto;"></div>
+      </div>
+    </div>
+
+    <!-- Row 2 (reversed) -->
+    <div style="display:flex;align-items:center;gap:0;flex-direction:row-reverse;min-width:600px;margin-bottom:0;">
+      <div class="flow-node end">
+        <span class="node-label">END</span>
+        Sleep Mode 🌙
+      </div>
+      <div class="flow-arrow"></div>
+      <div class="flow-node">
+        <span class="node-label">SCREEN 6</span>
+        Breathe Space
+      </div>
+      <div class="flow-arrow"></div>
+      <div class="flow-node">
+        <span class="node-label">SCREEN 5</span>
+        Thought Dump
+      </div>
+      <div class="flow-arrow"></div>
+      <div class="flow-node">
+        <span class="node-label">SCREEN 4</span>
+        Choose Action
+      </div>
+    </div>
+
+    <div style="margin-top:32px;padding-top:24px;border-top:1px solid var(--border);">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.2em;color:var(--ink-muted);margin-bottom:16px;">ALTERNATIVE PATHS</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div style="background:var(--sage-pale);border-radius:10px;padding:16px;font-size:13px;">
+          <strong>Path A:</strong> Mood low → Thought Dump → AI acknowledgement → Breathe → Sleep
+        </div>
+        <div style="background:var(--lavender-pale);border-radius:10px;padding:16px;font-size:13px;">
+          <strong>Path B:</strong> Mood okay → Quick journal prompt → View past entries → Sleep
+        </div>
+        <div style="background:var(--blush-pale);border-radius:10px;padding:16px;font-size:13px;">
+          <strong>Path C:</strong> Skip check-in → Direct Breathe Space (สำหรับ urgent anxiety)
+        </div>
+        <div style="background:var(--cream);border-radius:10px;padding:16px;font-size:13px;border:1px solid var(--border);">
+          <strong>Path D:</strong> Morning → Review yesterday's mood → Set intention for today
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 08 IA -->
+<section class="section" id="ia">
+  <div class="section-label">08 — INFORMATION ARCHITECTURE</div>
+  <h2 class="section-title">How it's <em>structured</em></h2>
+
+  <div style="background: var(--warm-white); border: 1px solid var(--border); border-radius: 20px; padding: 36px; overflow-x: auto;">
+    <div style="min-width: 720px;">
+      <!-- Root -->
+      <div style="display:flex;justify-content:center;margin-bottom:0;">
+        <div style="background:var(--sage);color:white;border-radius:12px;padding:14px 36px;font-size:15px;font-weight:500;letter-spacing:0.05em;">STILLMIND</div>
+      </div>
+      <!-- connector -->
+      <div style="display:flex;justify-content:center;"><div style="width:1.5px;height:24px;background:var(--sage);"></div></div>
+
+      <!-- 4 main sections -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px;position:relative;">
+        <!-- horizontal line -->
+        <div style="position:absolute;top:0;left:12.5%;right:12.5%;height:1.5px;background:var(--sage-light);"></div>
+
+        <!-- Branch 1 -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0;">
+          <div style="width:1.5px;height:24px;background:var(--sage-light);"></div>
+          <div style="background:var(--warm-white);border:1.5px solid var(--sage-light);border-radius:10px;padding:12px 8px;font-size:13px;text-align:center;width:100%;margin-bottom:0;">🏠 Home</div>
+          <div style="width:1.5px;height:14px;background:var(--border);"></div>
+          <div style="background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:11px;color:var(--ink-soft);text-align:center;width:90%;margin-bottom:6px;">Greeting</div>
+          <div style="width:1.5px;height:14px;background:var(--border);"></div>
+          <div style="background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:11px;color:var(--ink-soft);text-align:center;width:90%;margin-bottom:6px;">Quick Actions</div>
+          <div style="width:1.5px;height:14px;background:var(--border);"></div>
+          <div style="background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:11px;color:var(--ink-soft);text-align:center;width:90%;">Streak / Progress</div>
+        </div>
+
+        <!-- Branch 2 -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0;">
+          <div style="width:1.5px;height:24px;background:var(--sage-light);"></div>
+          <div style="background:var(--warm-white);border:1.5px solid var(--sage-light);border-radius:10px;padding:12px 8px;font-size:13px;text-align:center;width:100%;margin-bottom:0;">💭 Thought Dump</div>
+          <div style="width:1.5px;height:14px;background:var(--border);"></div>
+          <div style="background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:11px;color:var(--ink-soft);text-align:center;width:90%;margin-bottom:6px;">Mood Check-in</div>
+          <div style="width:1.5px;height:14px;background:var(--border);"></div>
+          <div style="background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:11px;color:var(--ink-soft);text-align:center;width:90%;margin-bottom:6px;">Emotion Tags</div>
+          <div style="width:1.5px;height:14px;background:var(--border);"></div>
+          <div style="background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:11px;color:var(--ink-soft);text-align:center;width:90%;margin-bottom:6px;">Free Write</div>
+          <div style="width:1.5px;height:14px;background:var(--border);"></div>
+          <div style="background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:11px;color:var(--ink-soft);text-align:center;width:90%;">AI Response</div>
+        </div>
+
+        <!-- Branch 3 -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0;">
+          <div style="width:1.5px;height:24px;background:var(--sage-light);"></div>
+          <div style="background:var(--warm-white);border:1.5px solid var(--sage-light);border-radius:10px;padding:12px 8px;font-size:13px;text-align:center;width:100%;margin-bottom:0;">🌬️ Breathe</div>
+          <div style="width:1.5px;height:14px;background:var(--border);"></div>
+          <div style="background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:11px;color:var(--ink-soft);text-align:center;width:90%;margin-bottom:6px;">Box Breathing</div>
+          <div style="width:1.5px;height:14px;background:var(--border);"></div>
+          <div style="background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:11px;color:var(--ink-soft);text-align:center;width:90%;margin-bottom:6px;">4-7-8 Method</div>
+          <div style="width:1.5px;height:14px;background:var(--border);"></div>
+          <div style="background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:11px;color:var(--ink-soft);text-align:center;width:90%;">Sound + Visuals</div>
+        </div>
+
+        <!-- Branch 4 -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0;">
+          <div style="width:1.5px;height:24px;background:var(--sage-light);"></div>
+          <div style="background:var(--warm-white);border:1.5px solid var(--sage-light);border-radius:10px;padding:12px 8px;font-size:13px;text-align:center;width:100%;margin-bottom:0;">📊 Mind Map</div>
+          <div style="width:1.5px;height:14px;background:var(--border);"></div>
+          <div style="background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:11px;color:var(--ink-soft);text-align:center;width:90%;margin-bottom:6px;">Weekly Mood</div>
+          <div style="width:1.5px;height:14px;background:var(--border);"></div>
+          <div style="background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:11px;color:var(--ink-soft);text-align:center;width:90%;margin-bottom:6px;">Thought Tags</div>
+          <div style="width:1.5px;height:14px;background:var(--border);"></div>
+          <div style="background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:11px;color:var(--ink-soft);text-align:center;width:90%;">Past Entries</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 09 WIREFRAMES -->
+<section class="section" id="wireframes">
+  <div class="section-label">09 — WIREFRAMES</div>
+  <h2 class="section-title">Screen by <em>screen</em></h2>
+
+  <div class="wireframe-grid">
+
+    <!-- Screen 1: Onboarding -->
+    <div>
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="screen-content">
+            <div style="height:60px;"></div>
+            <div style="display:flex;justify-content:center;margin-bottom:8px;">
+              <div class="wf-circle" style="width:70px;height:70px;background:rgba(139,168,136,0.3);display:flex;align-items:center;justify-content:center;font-size:28px;">🌿</div>
+            </div>
+            <div class="wf-bar bold" style="margin:0 auto;width:70%;"></div>
+            <div style="height:4px;"></div>
+            <div class="wf-bar" style="margin:0 auto;width:55%;"></div>
+            <div style="height:24px;"></div>
+            <div class="wf-rect sage" style="height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:12px;font-family:'Space Mono',monospace;color:var(--sage);">GET STARTED</div>
+            <div class="wf-bar" style="margin:8px auto;width:40%;height:6px;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="screen-label">ONBOARDING</div>
+      <div class="screen-desc">ต้อนรับผู้ใช้ใหม่ด้วย minimal welcome screen</div>
+    </div>
+
+    <!-- Screen 2: Home -->
+    <div>
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="screen-content">
+            <div class="wf-row">
+              <div class="wf-circle" style="width:32px;height:32px;"></div>
+              <div style="flex:1;">
+                <div class="wf-bar short" style="margin-bottom:4px;"></div>
+                <div class="wf-bar" style="width:45%;height:6px;"></div>
+              </div>
+              <div class="wf-circle" style="width:32px;height:32px;"></div>
+            </div>
+            <div style="height:8px;"></div>
+            <!-- Greeting block -->
+            <div class="wf-rect blush" style="height:80px;border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:6px;">
+              <div class="wf-bar" style="width:60%;background:rgba(196,120,90,0.2);"></div>
+              <div class="wf-bar" style="width:80%;background:rgba(196,120,90,0.15);"></div>
+              <div class="wf-bar" style="width:45%;background:rgba(196,120,90,0.15);"></div>
+            </div>
+            <!-- Mood quick pick -->
+            <div style="height:6px;"></div>
+            <div class="wf-bar" style="width:50%;height:6px;margin-bottom:8px;"></div>
+            <div style="display:flex;gap:8px;justify-content:space-between;">
+              <div class="wf-rect" style="flex:1;height:52px;border-radius:12px;background:rgba(232,196,176,0.3);"></div>
+              <div class="wf-rect" style="flex:1;height:52px;border-radius:12px;background:rgba(181,201,178,0.3);"></div>
+              <div class="wf-rect" style="flex:1;height:52px;border-radius:12px;background:rgba(196,184,212,0.3);"></div>
+              <div class="wf-rect" style="flex:1;height:52px;border-radius:12px;background:rgba(44,40,32,0.08);"></div>
+            </div>
+            <!-- Actions -->
+            <div style="height:6px;"></div>
+            <div class="wf-bar" style="width:40%;height:6px;margin-bottom:8px;"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <div class="wf-rect sage" style="height:64px;border-radius:14px;"></div>
+              <div class="wf-rect lavender" style="height:64px;border-radius:14px;background:rgba(196,184,212,0.3);"></div>
+            </div>
+            <!-- Bottom nav -->
+            <div style="margin-top:auto;"></div>
+            <div style="display:flex;justify-content:space-around;padding:8px 0;border-top:1px solid var(--border);">
+              <div class="wf-circle" style="width:22px;height:22px;background:rgba(139,168,136,0.5);"></div>
+              <div class="wf-circle" style="width:22px;height:22px;"></div>
+              <div class="wf-circle" style="width:22px;height:22px;"></div>
+              <div class="wf-circle" style="width:22px;height:22px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="screen-label">HOME</div>
+      <div class="screen-desc">Greeting + quick mood + shortcut features</div>
+    </div>
+
+    <!-- Screen 3: Thought Dump -->
+    <div>
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="screen-content">
+            <!-- Header -->
+            <div class="wf-row">
+              <div class="wf-circle" style="width:24px;height:24px;background:rgba(44,40,32,0.1);"></div>
+              <div class="wf-bar" style="flex:1;margin:0 10px;width:auto;height:6px;"></div>
+            </div>
+            <div style="height:4px;"></div>
+            <div class="wf-bar bold" style="width:65%;"></div>
+            <div class="wf-bar" style="width:80%;height:6px;margin-top:6px;"></div>
+            <!-- Mood wheel placeholder -->
+            <div style="display:flex;justify-content:center;margin:12px 0;">
+              <div class="wf-circle" style="width:100px;height:100px;background:linear-gradient(135deg,rgba(139,168,136,0.25),rgba(196,184,212,0.25));border:1.5px dashed rgba(44,40,32,0.15);"></div>
+            </div>
+            <!-- Emotion tags -->
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+              <div class="wf-tag"></div>
+              <div class="wf-tag" style="width:50px;"></div>
+              <div class="wf-tag" style="width:70px;"></div>
+              <div class="wf-tag" style="width:44px;"></div>
+            </div>
+            <!-- Text area -->
+            <div class="wf-rect" style="height:80px;border-radius:14px;border:1.5px dashed rgba(44,40,32,0.12);background:rgba(44,40,32,0.03);padding:10px;">
+              <div class="wf-bar" style="width:90%;margin-bottom:6px;height:5px;"></div>
+              <div class="wf-bar" style="width:70%;height:5px;"></div>
+            </div>
+            <!-- Submit -->
+            <div style="height:8px;"></div>
+            <div class="wf-rect sage" style="height:44px;border-radius:22px;background:rgba(139,168,136,0.4);"></div>
+          </div>
+        </div>
+      </div>
+      <div class="screen-label">THOUGHT DUMP</div>
+      <div class="screen-desc">Mood wheel + emotion tag + free write</div>
+    </div>
+
+    <!-- Screen 4: Breathe -->
+    <div>
+      <div class="phone-frame">
+        <div class="phone-screen" style="background: #F0EDE6;">
+          <div class="phone-notch" style="background:#F0EDE6;"></div>
+          <div class="screen-content" style="align-items:center;text-align:center;">
+            <div class="wf-row" style="width:100%;">
+              <div class="wf-circle" style="width:24px;height:24px;"></div>
+              <div style="flex:1;"></div>
+            </div>
+            <div style="height:20px;"></div>
+            <div class="wf-bar bold" style="width:50%;margin:0 auto;"></div>
+            <div style="height:6px;"></div>
+            <div class="wf-bar" style="width:70%;margin:0 auto;height:5px;"></div>
+            <!-- Breathing circle -->
+            <div style="position:relative;display:flex;align-items:center;justify-content:center;margin:24px 0;height:140px;">
+              <div style="position:absolute;width:130px;height:130px;border-radius:50%;background:rgba(139,168,136,0.1);border:1px solid rgba(139,168,136,0.2);"></div>
+              <div style="position:absolute;width:100px;height:100px;border-radius:50%;background:rgba(139,168,136,0.15);border:1px solid rgba(139,168,136,0.25);"></div>
+              <div style="width:70px;height:70px;border-radius:50%;background:rgba(139,168,136,0.35);display:flex;align-items:center;justify-content:center;font-size:20px;">🌿</div>
+            </div>
+            <!-- Phase label -->
+            <div class="wf-bar" style="width:35%;margin:0 auto;background:rgba(139,168,136,0.4);"></div>
+            <div style="height:8px;"></div>
+            <div class="wf-bar" style="width:20%;margin:0 auto;height:6px;"></div>
+            <div style="height:24px;"></div>
+            <!-- Controls -->
+            <div style="display:flex;gap:16px;justify-content:center;">
+              <div class="wf-circle" style="width:44px;height:44px;background:rgba(44,40,32,0.08);"></div>
+              <div class="wf-circle" style="width:56px;height:56px;background:rgba(139,168,136,0.3);"></div>
+              <div class="wf-circle" style="width:44px;height:44px;background:rgba(44,40,32,0.08);"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="screen-label">BREATHE SPACE</div>
+      <div class="screen-desc">Animated breathing guide organic visual</div>
+    </div>
+
+    <!-- Screen 5: Mind Map -->
+    <div>
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="screen-content">
+            <div class="wf-bar bold" style="width:50%;"></div>
+            <div class="wf-bar" style="width:70%;height:5px;margin-top:6px;"></div>
+            <!-- Week bar chart -->
+            <div style="background:rgba(44,40,32,0.04);border-radius:12px;padding:14px;margin-top:8px;">
+              <div class="wf-bar" style="width:35%;height:5px;margin-bottom:10px;"></div>
+              <div style="display:flex;align-items:flex-end;gap:6px;height:60px;">
+                <div style="flex:1;background:rgba(139,168,136,0.3);border-radius:4px 4px 0 0;height:40%;"></div>
+                <div style="flex:1;background:rgba(139,168,136,0.3);border-radius:4px 4px 0 0;height:70%;"></div>
+                <div style="flex:1;background:rgba(139,168,136,0.5);border-radius:4px 4px 0 0;height:55%;"></div>
+                <div style="flex:1;background:rgba(139,168,136,0.3);border-radius:4px 4px 0 0;height:30%;"></div>
+                <div style="flex:1;background:rgba(196,184,212,0.5);border-radius:4px 4px 0 0;height:85%;"></div>
+                <div style="flex:1;background:rgba(232,196,176,0.5);border-radius:4px 4px 0 0;height:60%;"></div>
+                <div style="flex:1;background:rgba(139,168,136,0.3);border-radius:4px 4px 0 0;height:45%;"></div>
+              </div>
+              <div style="display:flex;gap:6px;margin-top:4px;">
+                <div class="wf-bar" style="flex:1;height:4px;background:rgba(44,40,32,0.06);"></div>
+                <div class="wf-bar" style="flex:1;height:4px;background:rgba(44,40,32,0.06);"></div>
+                <div class="wf-bar" style="flex:1;height:4px;background:rgba(44,40,32,0.06);"></div>
+                <div class="wf-bar" style="flex:1;height:4px;background:rgba(44,40,32,0.06);"></div>
+                <div class="wf-bar" style="flex:1;height:4px;background:rgba(44,40,32,0.06);"></div>
+                <div class="wf-bar" style="flex:1;height:4px;background:rgba(44,40,32,0.06);"></div>
+                <div class="wf-bar" style="flex:1;height:4px;background:rgba(44,40,32,0.06);"></div>
+              </div>
+            </div>
+            <!-- Tags cloud -->
+            <div class="wf-bar" style="width:40%;height:5px;margin:8px 0;"></div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              <div style="background:rgba(139,168,136,0.2);border-radius:100px;height:22px;width:70px;"></div>
+              <div style="background:rgba(196,184,212,0.3);border-radius:100px;height:22px;width:55px;"></div>
+              <div style="background:rgba(232,196,176,0.3);border-radius:100px;height:22px;width:80px;"></div>
+              <div style="background:rgba(139,168,136,0.15);border-radius:100px;height:22px;width:50px;"></div>
+              <div style="background:rgba(196,184,212,0.2);border-radius:100px;height:22px;width:65px;"></div>
+            </div>
+            <!-- Past entries -->
+            <div class="wf-bar" style="width:40%;height:5px;margin:8px 0;"></div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <div style="background:var(--cream);border:1px solid var(--border);border-radius:10px;height:36px;padding:0 12px;display:flex;align-items:center;gap:10px;">
+                <div class="wf-circle" style="width:14px;height:14px;background:rgba(139,168,136,0.4);"></div>
+                <div class="wf-bar" style="flex:1;height:5px;"></div>
+                <div class="wf-bar" style="width:25%;height:4px;opacity:0.5;"></div>
+              </div>
+              <div style="background:var(--cream);border:1px solid var(--border);border-radius:10px;height:36px;padding:0 12px;display:flex;align-items:center;gap:10px;">
+                <div class="wf-circle" style="width:14px;height:14px;background:rgba(196,184,212,0.4);"></div>
+                <div class="wf-bar" style="flex:1;height:5px;"></div>
+                <div class="wf-bar" style="width:25%;height:4px;opacity:0.5;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="screen-label">MIND MAP</div>
+      <div class="screen-desc">Weekly mood + thought tag cloud + entries</div>
+    </div>
+
+  </div>
+
+  <div style="margin-top:40px;background:var(--warm-white);border:1px solid var(--border);border-radius:16px;padding:28px;">
+    <div class="section-label" style="margin-bottom:16px;">FIDELITY NOTE</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;font-size:13px;color:var(--ink-soft);">
+      <div><strong style="display:block;margin-bottom:6px;color:var(--ink);">Low Fidelity (done ✓)</strong>Layout structure, navigation flow, content hierarchy, information architecture — ทุกอย่างที่เห็นในหน้านี้</div>
+      <div><strong style="display:block;margin-bottom:6px;color:var(--ink);">Mid Fidelity (next step)</strong>Typography, spacing, actual icons, real color palette, interaction states — พร้อม prototype ใน Figma</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-logo">StillMind</div>
+  <div class="footer-sub">CMD332 — Designing for Mental Wellness · Project 2 · 2/2568</div>
+</footer>
+
+<script>
+  // Active nav
+  const sections = document.querySelectorAll('section[id]');
+  const navItems = document.querySelectorAll('.nav-item');
+  
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navItems.forEach(n => n.classList.remove('active'));
+        const active = document.querySelector(`.nav-item[href="#${e.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { threshold: 0.3 });
+  
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
